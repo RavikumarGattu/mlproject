@@ -8,6 +8,7 @@ import numpy as np
 from src.exception import CustomException
 
 from sklearn.metrics import r2_score
+from sklearn.model_selection import GridSearchCV
 
 def save_object(file_path:str,obj:object)->None:
     '''
@@ -24,7 +25,7 @@ def save_object(file_path:str,obj:object)->None:
         raise CustomException(e,sys)
 
 
-def evaluate_models(X_train,y_train,X_test,y_test,models:dict)->dict:
+def evaluate_models(X_train,y_train,X_test,y_test,models:dict,model_params:dict)->dict:
     '''
     This function is used to evaluate the models and return the report
     '''
@@ -33,6 +34,16 @@ def evaluate_models(X_train,y_train,X_test,y_test,models:dict)->dict:
 
         for i in range(len(models)):
             model=list(models.values())[i]
+            # Get the hyperparameters for the model
+            params=model_params[list(models.keys())[i]]
+            
+            gs=GridSearchCV(model,params,cv=3)
+            # Fit the model
+            gs.fit(X_train,y_train)
+
+            # Set the model with best hyperparameters
+            model.set_params(**gs.best_params_)
+            
             # Train the model
             model.fit(X_train,y_train)
 
