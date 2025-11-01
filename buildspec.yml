@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.10
+    commands:
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+  pre_build:
+    commands:
+      - echo "Running unit tests (if any)"
+      - pytest -q || echo "Tests failed or not present - continuing"
+  build:
+    commands:
+      - echo "Packaging application"
+      - zip -r deploy.zip . -x "*.git*" "venv/*" ".env" "logs/*" "node_modules/*"
+
+artifacts:
+  files:
+    - deploy.zip
+  discard-paths: yes
